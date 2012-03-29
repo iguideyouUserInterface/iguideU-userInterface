@@ -31,13 +31,13 @@ function isLoggedIn() {
 
                      //store the users and email salt in a var
                      $salt = $row['usersalt'];
-                     //$email = $row['email'];
-					 $date = $row['date'];
-                     $combine = $date . $password . $salt;
+                     $email = $row['email'];
+
+                     //$combine = $email . $password . $salt;
+                     $combine = $password . $salt . $password;
 
                      //authenticate password with has function
                      $authenticatedpassword = sha1($combine);
-                     //$authenticatedpassword = $combine;
 
                      // check database for username and the rehash pass
                      $checklogin = mysql_query("SELECT * FROM users WHERE email = '$email' AND password = '$authenticatedpassword'") or die
@@ -83,7 +83,7 @@ function displayNav(){
         if (!isset($_SESSION['id'])) {
         	?>
         	<form name="form1" method="post" action="?">
-            	<label for='email'>E-mail</label>
+            	<label for='username'>Username</label>
            		<input name="email" type="text" id="email" size="30" />
             	<label for='password'>Password</label>
             	<input name="password" type="password" id="password" size="30" />
@@ -220,7 +220,7 @@ function displayContent() {
 
 
 function displayForm() {
-   if(isset($_SESSION['email'])) {
+   if(isset($_SESSION['username'])) {
         $title = "";
         $entry = "";
          ?>
