@@ -5,7 +5,7 @@ function hasLoggedOut(){
             $_SESSION['user'] = false;
             if(isset($_SESSION['id'])) {
         	$_SESSION = array();
-        	unset($_SESSION['username']);
+        	unset($_SESSION['email']);
         	unset($_SESSION['user']);
 	        session_destroy();
             }
@@ -17,12 +17,12 @@ function isLoggedIn() {
          
             require_once 'databaseconnect.php';
 
-            if(!empty($_POST['username']) && !empty($_POST['password'])) {   // To "sanitize" our inputs
+            if(!empty($_POST['email']) && !empty($_POST['password'])) {   // To "sanitize" our inputs
             
-                $username = mysql_real_escape_string($_POST['username']);   // To protect MySQL injection
+                $email = mysql_real_escape_string($_POST['email']);   // To protect MySQL injection
                 $password = mysql_real_escape_string($_POST['password']);   // To protect MySQL injection
             
-                $grabrow = mysql_query("SELECT * FROM user WHERE username = '$username'") or die
+                $grabrow = mysql_query("SELECT * FROM users WHERE email = '$email'") or die
                 ("MySQL Error: ".mysql_error());
                 //if only one row was retrieved
                 if (mysql_num_rows($grabrow) == 1) {
@@ -31,22 +31,23 @@ function isLoggedIn() {
 
                      //store the users and email salt in a var
                      $salt = $row['usersalt'];
-                     $email = $row['email'];
-
-                     $combine = $email . $password . $salt;
+                     //$email = $row['email'];
+					 $date = $row['date'];
+                     $combine = $date . $password . $salt;
 
                      //authenticate password with has function
                      $authenticatedpassword = sha1($combine);
+                     //$authenticatedpassword = $combine;
 
                      // check database for username and the rehash pass
-                     $checklogin = mysql_query("SELECT * FROM user WHERE username = '$username' AND password = '$authenticatedpassword'") or die
+                     $checklogin = mysql_query("SELECT * FROM users WHERE email = '$email' AND password = '$authenticatedpassword'") or die
                     ("MySQL Error: ".mysql_error());
 
                     if(mysql_num_rows($checklogin) == 1) {
 
                         $id = mysql_result($checklogin, 0, 'id');
                         $_SESSION['id']= $id;
-                        $_SESSION['username'] = $username;
+                        $_SESSION['email'] = $email;
                         $_SESSION['user'] = true;
                     } else {
                    
@@ -82,8 +83,8 @@ function displayNav(){
         if (!isset($_SESSION['id'])) {
         	?>
         	<form name="form1" method="post" action="?">
-            	<label for='username'>Username</label>
-           		<input name="username" type="text" id="username" size="30" />
+            	<label for='email'>E-mail</label>
+           		<input name="email" type="text" id="email" size="30" />
             	<label for='password'>Password</label>
             	<input name="password" type="password" id="password" size="30" />
                 <br />
@@ -91,7 +92,7 @@ function displayNav(){
             </form>        	
            <?
         } else {
-        	echo "<p>You are now logged in as: <br /> " . $_SESSION['username'] . "</p>";
+        	echo "<p>You are now logged in as: <br /> " . $_SESSION['email'] . "</p>";
         	?>
         	<form name="form1" method="post" action="?">
         		<input type="submit" name="logout" value="Log out" /> 
@@ -219,7 +220,7 @@ function displayContent() {
 
 
 function displayForm() {
-   if(isset($_SESSION['username'])) {
+   if(isset($_SESSION['email'])) {
         $title = "";
         $entry = "";
          ?>
